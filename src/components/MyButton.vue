@@ -1,19 +1,23 @@
 <template>
-  <button class="button" @click="$emit('click')" :type="nativeType">
+  <button
+    class="button"
+    :type="nativeType"
+    @click="$emit('click')"
+  >
     <slot />
   </button>
 </template>
 
 <script>
 export default {
-  name: "MyButton",
+  name: 'MyButton',
   props: {
     nativeType: {
       type: String,
       required: false,
     },
   },
-};
+}
 </script>
 
 <style scoped>

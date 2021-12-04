@@ -1,21 +1,21 @@
 <template>
   <main>
-    <Timer />
+    <MyTimer />
     <link
       href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
       rel="stylesheet"
-    />
+    >
   </main>
 </template>
 
 <script>
-import Timer from "./components/Timer.vue";
+import MyTimer from './components/MyTimer.vue'
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    Timer,
+    MyTimer,
   },
-};
+}
 </script>
 
 <style>
