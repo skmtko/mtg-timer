@@ -8,6 +8,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@types/youtube": "^0.0.46",
     "core-js": "^3.6.5",
     "sass-loader": "^12.3.0",
     "tailwindcss": "2.2.19",

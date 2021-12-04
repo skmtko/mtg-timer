@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      video_id : <input type="text" v-model="temp.video_id" /><br />
+      video_id : <input type="text" v-model="state.temp.video_id" /><br />
       <MyButton @click="applyConfig">Apply</MyButton>
       <MyButton @click="playCurrentVideo">Play</MyButton>
       <MyButton @click="stopCurrentVideo">Stop</MyButton>
@@ -9,13 +9,13 @@
     </div>
     <YoutubeVue3
       ref="youtube"
-      :videoid="play.video_id"
-      :loop="play.loop"
+      :videoid="state.play.video_id"
+      :loop="state.play.loop"
       :width="480"
       :height="320"
-      @ended="onEnded"
-      @paused="onPaused"
-      @played="onPlayed"
+      @ended="log('onEnded')"
+      @paused="log('onPaused')"
+      @played="log('onPlayed')"
     />
   </div>
 </template>
@@ -23,47 +23,58 @@
 <script lang="ts">
 import MyButton from "./MyButton.vue";
 import { YoutubeVue3 } from "youtube-vue3";
+import {
+  defineComponent,
+  onMounted,
+  reactive,
+  Ref,
+  ref,
+} from "@vue/runtime-core";
 
-export default {
+export default defineComponent({
   name: "Player",
   components: {
     MyButton,
     YoutubeVue3,
   },
-  data() {
-    return {
+  setup() {
+    const state = reactive({
       temp: { video_id: "3P1CnWI62Ik", loop: 1 },
       play: { video_id: "3P1CnWI62Ik", loop: 1 },
+    });
+
+    const youtube: Ref<{ player: YT.Player }> = ref(null);
+
+    onMounted(() => {
+        console.log(youtube.value); // <div/>
+    });
+
+    const applyConfig = () => {
+      state.play = Object.assign(state.play, state.temp);
+    };
+    const playCurrentVideo = () => {
+      youtube.value.player.playVideo();
+    };
+    const stopCurrentVideo = () => {
+      youtube.value.player.stopVideo();
+    };
+    const pauseCurrentVideo = () => {
+      youtube.value.player.pauseVideo();
+    };
+    const log = (m: string) => {
+      console.log(m);
+    };
+
+    return {
+      state,
+      youtube,
+      applyConfig,
+      playCurrentVideo,
+      stopCurrentVideo,
+      pauseCurrentVideo,
+
+      log,
     };
   },
-  computed: {
-    player() {
-      return this.$refs.youtube.player;
-    },
-  },
-  methods: {
-    applyConfig() {
-      this.play = Object.assign(this.play, this.temp);
-    },
-    playCurrentVideo() {
-      console.log();
-      this.$refs.youtube.player.playVideo();
-    },
-    stopCurrentVideo() {
-      this.$refs.youtube.player.stopVideo();
-    },
-    pauseCurrentVideo() {
-      this.$refs.youtube.player.pauseVideo();
-    },
-    onEnded() {
-      console.log("## OnEnded");
-    },
-    onPaused() {
-      console.log("## OnPaused");
-    },
-    onPlayed() {
-      console.log("## OnPlayed");
-    },
-  },
-};
+});
 </script>
