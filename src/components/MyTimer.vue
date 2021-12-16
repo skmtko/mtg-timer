@@ -74,11 +74,12 @@
         </div>
 
         <div class="mt-8">
+          <p class="text-xs mb-1">使えそうなyoutubeidのメモです（そのうち保存できるようにする予定）</p>
           <textarea
             v-model="memo"
-            class="textarea w-full"
+            class="textarea w-full text-sm p-2"
             name="memo"
-            rows="10"
+            rows="12"
           />
         </div>
       </div>
@@ -182,7 +183,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .timerDisplay {
-  height: 65vh;
+  height: 60vh;
 }
 .video {
   width: 480px;
