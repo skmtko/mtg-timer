@@ -1,92 +1,71 @@
 <template>
-  <div>
-    <div>
-      video_id : <input
-        v-model="state.temp.video_id"
-        type="text"
-      ><br>
-      <MyButton @click="applyConfig">
-        Apply
-      </MyButton>
-      <MyButton @click="playCurrentVideo">
-        Play
-      </MyButton>
-      <MyButton @click="stopCurrentVideo">
-        Stop
-      </MyButton>
-      <MyButton @click="pauseCurrentVideo">
-        Pause
-      </MyButton>
-    </div>
-    <YoutubeVue3
-      ref="youtube"
-      :videoid="state.play.video_id"
-      :loop="state.play.loop"
-      :width="480"
-      :height="320"
-      @ended="log('onEnded')"
-      @paused="log('onPaused')"
-      @played="log('onPlayed')"
-    />
-  </div>
+  <div
+    id="youtube-vue-player-soma"
+    ref="player"
+  />
 </template>
 
-<script lang="ts">
-import MyButton from './MyButton.vue'
-import { YoutubeVue3 } from 'youtube-vue3'
-import {
-  defineComponent,
-  onMounted,
-  reactive,
-  Ref,
-  ref,
-} from '@vue/runtime-core'
-type YT = any
+<script>
+import YouTubePlayer from 'youtube-player'
 
-export default defineComponent({
-  name: 'MyPlayer',
-  components: {
-    MyButton,
-    YoutubeVue3,
+export default {
+  name: 'MyPlayerz',
+  props: {
+    width: { type: Number, default: 480 },
+    height: { type: Number, default: 320 },
+    autoplay: {
+      type: Number,
+      default: 1,
+      validator: (v) => Number(v) === 0 || Number(v) === 1,
+    },
+    videoid: { type: String, required: true },
+    loop: {
+      type: Number,
+      default: 1,
+      validator: (v) => Number(v) === 0 || Number(v) === 1,
+    },
   },
-  setup() {
-    const state = reactive({
-      temp: { video_id: '3P1CnWI62Ik', loop: 1 },
-      play: { video_id: '3P1CnWI62Ik', loop: 1 },
-    })
-
-    const youtube: Ref<{ player: YT.Player }> = ref(null)
-
-    onMounted(() => {
-      console.log(youtube.value) // <div/>
-    })
-
-    const applyConfig = () => {
-      state.play = Object.assign(state.play, state.temp)
-    }
-    const playCurrentVideo = () => {
-      youtube.value.player.playVideo()
-    }
-    const stopCurrentVideo = () => {
-      youtube.value.player.stopVideo()
-    }
-    const pauseCurrentVideo = () => {
-      youtube.value.player.pauseVideo()
-    }
-    const log = (m: string) => {
-      console.log(m)
-    }
-
+  data() {
     return {
-      state,
-      youtube,
-      applyConfig,
-      playCurrentVideo,
-      stopCurrentVideo,
-      pauseCurrentVideo,
-
-      log,
+      ready: 0,
     }
   },
-})
+  watch: {
+    videoid() {
+      this.player.loadVideoById(this.videoid)
+      this.player.playVideo()
+    },
+    list() {
+      this.player.getPlaylist(this.list)
+      this.player.playVideo()
+    },
+  },
+  mounted() {
+    let playerVars = {
+      autoplay: this.autoplay,
+      loop: this.loop,
+    }
+    this.player = YouTubePlayer('youtube-vue-player-soma', {
+      host: 'https://www.youtube.com',
+      width: this.width,
+      height: this.height,
+      videoId: this.videoid,
+      playerVars: playerVars,
+    })
+
+    this.player.on('stateChange', (e) => {
+      if (e.data === window.YT.PlayerState.ENDED) {
+        this.$emit('ended')
+      } else if (e.data === window.YT.PlayerState.PAUSED) {
+        this.$emit('paused')
+      } else if (e.data === window.YT.PlayerState.PLAYING) {
+        this.$emit('played')
+      }
+    })
+  },
+  unmounted() {
+    this.player.destroy()
+    delete this.player
+  },
+}
 </script>

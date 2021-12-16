@@ -1,14 +1,10 @@
 <template>
-  <div>
-    <div class="text-xs">
-      <span class="minutes">minutes: {{ displayMinutes }}</span>
-      <span> / </span>
-      <span class="seconds">seconds: {{ displaySeconds }}</span>
-    </div>
-
-    <div class="text-3xl">
+  <div class="flex justify-center items-center">
+    <slot name="prefix" />
+    <div class="text-8xl">
       {{ `${displayMinutes}:${displaySeconds}` }}
     </div>
+    <slot name="suffix" />
   </div>
 </template>
 
