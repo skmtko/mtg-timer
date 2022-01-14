@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="timerDisplay flex items-center justify-center">
-      <div>
+    <div class="timerContainer flex items-center justify-center">
+      <div class="sticky top-4">
         <TimeDisplay :time="current">
           <template #prefix>
             <div class="mr-4">
@@ -55,7 +55,7 @@
 
     <hr class="my-8" />
 
-    <div class="p-4 flex items-center justify-center">
+    <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
         ref="youtube"
         class="video flex-shrink-0"
@@ -67,20 +67,24 @@
       <div class="ml-8 text-left editor">
         <div>
           <span class="mr-2">video_id :</span>
-          <input v-model="state.temp.video_id" class="input" type="text" />
+          <input v-model="state.temp.video_id" class="idInput" type="text" />
         </div>
         <div class="mt-2">
           <MyButton @click="applyConfig"> Apply video_id </MyButton>
         </div>
 
         <div class="mt-8">
-          <p class="text-xs mb-1">使えそうなyoutubeidのメモです（そのうち保存できるようにする予定）</p>
+          <p class="text-xs mb-1">
+            使えそうなyoutubeIdのメモです<br />localStorageに自動保存されます
+          </p>
           <textarea
-            v-model="memo"
+            v-model="note"
             class="textarea w-full text-sm p-2"
-            name="memo"
+            name="note"
             rows="12"
+            @input="onUpdateNote"
           />
+          <MyButton @click="onClickInitNote">メモのリセット</MyButton>
         </div>
       </div>
     </div>
@@ -89,24 +93,14 @@
 
 <script lang="ts">
 import { ref, defineComponent, Ref, watch } from 'vue'
+import { debounce } from 'throttle-debounce'
+
 import TimeDisplay from './TimeDisplay.vue'
 import MyPlayer from './MyPlayer.vue'
 import MyButton from './MyButton.vue'
 import useTimer from '../composables/useTimer'
 import useYoutube from '../composables/useYoutube'
-
-const defaultMemo = `パワーホール（長州力の入場曲）
-4EAwzCoAViI
-
-軽快なJazz
-MNENa7PTmQY
-
-タブラ演奏
-nCBHZ9NbCLM
-
-X JAPAN - 紅 (Tokyo Dome 2009.05.03)
-xR4qXUwsp9Q
-`
+import useNote from '../composables/useNote'
 
 export default defineComponent({
   name: 'MyTimer',
@@ -154,7 +148,20 @@ export default defineComponent({
       }
     )
 
-    const memo = ref(defaultMemo)
+    const { note, initNote, resetNote, updateStorageNote } = useNote()
+
+    initNote()
+
+    const onUpdateNote = debounce(1500, false, () => {
+      updateStorageNote()
+    })
+
+    const onClickInitNote = () => {
+      if (confirm('メモをリセットしますか？')) {
+        resetNote()
+        updateStorageNote()
+      }
+    }
 
     return {
       // timer
@@ -175,14 +182,16 @@ export default defineComponent({
       stopCurrentVideo,
       pauseCurrentVideo,
 
-      // memo
-      memo,
+      // note
+      note,
+      onUpdateNote,
+      onClickInitNote,
     }
   },
 })
 </script>
 <style scoped>
-.timerDisplay {
+.timerContainer {
   height: 60vh;
 }
 .video {
@@ -194,5 +203,12 @@ export default defineComponent({
 .textarea {
   border-style: solid;
   border-width: 1px;
+}
+.idInput {
+  border-style: solid;
+  border-width: 1px;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: 9999px;
 }
 </style>
