@@ -9,7 +9,7 @@ export default function useYoutube(
   youtube: Ref<{ player: YT.Player }>,
   defaultId = 'RBjJc8o--tE'
 ) {
-  const localStorageVId = localStorage.getItem(StorageKey.video_id)
+  const localStorageVId = localStorage.getItem(StorageKey.video_id) ?? ''
 
   const initialVideoId =
     localStorageVId.length > 10 ? localStorageVId : defaultId
