@@ -1,14 +1,21 @@
-import { Ref, ref } from 'vue'
+import { ref } from 'vue'
 
 const minutes = 60
 const maxLimit = 59 + 59 * 60
-const miliSeconds = 1000
+const msToSec = (ms: number) => ms / 1000
+const SecToMs = (s: number) => s * 1000
+
+type FinishTime = number | false
 
 export default function useTimer(defaultLimit = minutes) {
   const current = ref(defaultLimit)
   const isCounting = ref(false)
   const resetPoint = ref(defaultLimit)
-  const finishTime: Ref<number | false> = ref(false)
+  const finishTime = ref<FinishTime>(false)
+
+  const setFinishTime = (value: FinishTime) => {
+    finishTime.value = value
+  }
 
   const addCount = (s = 10) => {
     const tmp = current.value + s
@@ -28,10 +35,10 @@ export default function useTimer(defaultLimit = minutes) {
 
     if (isCounting.value && finishTime.value) {
       if (tmp > maxLimit) {
-        finishTime.value = new Date().getTime() + maxLimit * miliSeconds
+        setFinishTime(new Date().getTime() + SecToMs(maxLimit))
         return
       }
-      finishTime.value = finishTime.value + s * miliSeconds
+      setFinishTime(finishTime.value + SecToMs(s))
     }
   }
 
@@ -44,12 +51,12 @@ export default function useTimer(defaultLimit = minutes) {
 
   const countStart = () => {
     resetPoint.value = current.value
-    finishTime.value = new Date().getTime() + current.value * miliSeconds
+    setFinishTime(new Date().getTime() + SecToMs(current.value))
     isCounting.value = true
   }
   const countStop = () => {
     isCounting.value = false
-    finishTime.value = false
+    setFinishTime(false)
   }
   const countReset = () => {
     const limit = resetPoint.value
@@ -66,10 +73,8 @@ export default function useTimer(defaultLimit = minutes) {
     }
     if (!finishTime.value) return
 
-    const currentMili = finishTime.value - new Date().getTime()
-    current.value = Math.ceil(currentMili / miliSeconds)
-
-    // current.value = current.value - 1
+    const currentMillisecond = finishTime.value - new Date().getTime()
+    current.value = Math.ceil(msToSec(currentMillisecond))
   }
 
   const flame = 30
