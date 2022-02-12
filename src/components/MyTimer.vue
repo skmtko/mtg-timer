@@ -59,7 +59,7 @@
       <MyPlayer
         ref="youtube"
         class="video flex-shrink-0"
-        :videoid="state.play.video_id"
+        :video-id="state.play.video_id"
         :loop="state.play.loop"
         :width="480"
         :height="320"
