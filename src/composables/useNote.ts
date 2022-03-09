@@ -1,4 +1,4 @@
-import { ref } from "vue"
+import { ref } from 'vue'
 
 const defaultNote = `# パワーホール（長州力の入場曲）
 4EAwzCoAViI
@@ -23,14 +23,13 @@ E0IImqWeQpo
 ` as const
 
 const StorageKey = {
-  note: 'note'
+  note: 'note',
 } as const
 type StorageKey = typeof StorageKey[keyof typeof StorageKey]
 
 export default function useNote() {
-    
   const note = ref('')
-  
+
   const initNote = () => {
     const localStorageNote = localStorage.getItem(StorageKey.note)
     note.value = localStorageNote ?? defaultNote

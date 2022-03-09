@@ -27,7 +27,11 @@
           >
             START
           </MyButton>
-          <MyButton v-if="isCounting" size="lg" @click="countStop">
+          <MyButton
+            v-if="isCounting"
+            size="lg"
+            @click="countStop"
+          >
             STOP
           </MyButton>
 
@@ -42,7 +46,11 @@
         </div>
 
         <div class="mt-2">
-          <MyButton :disabled="isCounting" title="切り上げ" @click="roundUp">
+          <MyButton
+            :disabled="isCounting"
+            title="切り上げ"
+            @click="roundUp"
+          >
             RoundUp
           </MyButton>
         </div>
@@ -53,7 +61,7 @@
       <MyButton @click="addCount(3)"> +1sec </MyButton>
     </div> -->
 
-    <hr class="my-8" />
+    <hr class="my-8">
 
     <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
@@ -67,15 +75,21 @@
       <div class="ml-8 text-left editor">
         <div>
           <span class="mr-2">video_id :</span>
-          <input v-model="state.temp.video_id" class="idInput" type="text" />
+          <input
+            v-model="state.temp.video_id"
+            class="idInput"
+            type="text"
+          >
         </div>
         <div class="mt-2">
-          <MyButton @click="applyConfig"> Apply video_id </MyButton>
+          <MyButton @click="applyConfig">
+            Apply video_id
+          </MyButton>
         </div>
 
         <div class="mt-8">
           <p class="text-xs mb-1">
-            使えそうなyoutubeIdのメモです<br />localStorageに自動保存されます
+            使えそうなyoutubeIdのメモです<br>localStorageに自動保存されます
           </p>
           <textarea
             v-model="note"
@@ -84,7 +98,9 @@
             rows="12"
             @input="onUpdateNote"
           />
-          <MyButton @click="onClickInitNote"> メモのリセット </MyButton>
+          <MyButton @click="onClickInitNote">
+            メモのリセット
+          </MyButton>
         </div>
       </div>
     </div>
