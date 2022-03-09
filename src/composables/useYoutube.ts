@@ -1,4 +1,5 @@
 import { reactive, Ref } from 'vue'
+import { YouTubePlayer } from 'youtube-player/dist/types'
 
 const StorageKey = {
   video_id: 'video_id',
@@ -6,7 +7,7 @@ const StorageKey = {
 type StorageKey = typeof StorageKey[keyof typeof StorageKey]
 
 export default function useYoutube(
-  youtube: Ref<{ player: YT.Player }>,
+  youtube: Ref<{ player: YouTubePlayer }>,
   defaultId = 'RBjJc8o--tE'
 ) {
   const localStorageVId = localStorage.getItem(StorageKey.video_id) ?? ''

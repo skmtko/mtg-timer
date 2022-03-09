@@ -1,17 +1,21 @@
 <template>
-  <div
-    id="my-youtube-vue-player"
-    ref="player"
-  />
+  <div id="my-youtube-vue-player" ref="player" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import {
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  ref,
+  SetupContext,
+  watch,
+} from 'vue'
 import PlayerFactory from 'youtube-player'
 import { YouTubePlayer } from 'youtube-player/dist/types'
 
 const convertBooleanToIO = (v: boolean): 0 | 1 => {
-  if(v) return 1
+  if (v) return 1
   return 0
 }
 
@@ -31,47 +35,50 @@ export default defineComponent({
     },
   },
   emits: ['ended', 'paused', 'played'],
-  data(): { player: null | YouTubePlayer } {
-    return {
-      player: null
-    }
-  },
-  watch: {
-    videoId() {
-      this.player.loadVideoById(this.videoId)
-      if (this.autoplay) {
-        this.player.playVideo()
-      } else {
-        this.player.stopVideo()
+  setup(props, context: SetupContext) {
+    const player = ref<YouTubePlayer | null>(null)
+    onMounted(() => {
+      const playerVars = {
+        autoplay: convertBooleanToIO(props.autoplay),
+        loop: convertBooleanToIO(props.loop),
       }
-    },
-  },
-  mounted() {
-    const playerVars = {
-      autoplay: convertBooleanToIO(this.autoplay),
-      loop: convertBooleanToIO(this.loop),
-    }
-    this.player = PlayerFactory('my-youtube-vue-player', {
-      host: 'https://www.youtube.com',
-      width: this.width,
-      height: this.height,
-      videoId: this.videoId,
-      playerVars,
+      player.value = PlayerFactory('my-youtube-vue-player', {
+        host: 'https://www.youtube.com',
+        width: props.width,
+        height: props.height,
+        videoId: props.videoId,
+        playerVars,
+      })
+
+      player.value.on('stateChange', (e) => {
+        if (e.data === window.YT.PlayerState.ENDED) {
+          context.emit('ended')
+        } else if (e.data === window.YT.PlayerState.PAUSED) {
+          context.emit('paused')
+        } else if (e.data === window.YT.PlayerState.PLAYING) {
+          context.emit('played')
+        }
+      })
+    })
+    onUnmounted(() => {
+      player.value.destroy()
+      delete player.value
     })
 
-    this.player.on('stateChange', (e) => {
-      if (e.data === window.YT.PlayerState.ENDED) {
-        this.$emit('ended')
-      } else if (e.data === window.YT.PlayerState.PAUSED) {
-        this.$emit('paused')
-      } else if (e.data === window.YT.PlayerState.PLAYING) {
-        this.$emit('played')
+    watch(
+      () => props.videoId,
+      () => {
+        player.value.loadVideoById(props.videoId)
+        if (props.autoplay) {
+          player.value.playVideo()
+        } else {
+          player.value.stopVideo()
+        }
       }
-    })
-  },
-  unmounted() {
-    this.player.destroy()
-    delete this.player
+    )
+    return {
+      player,
+    }
   },
 })
 </script>

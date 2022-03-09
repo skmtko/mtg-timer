@@ -102,6 +102,9 @@ import useTimer from '../composables/useTimer'
 import useYoutube from '../composables/useYoutube'
 import useNote from '../composables/useNote'
 
+import { YouTubePlayer } from 'youtube-player/dist/types'
+
+
 export default defineComponent({
   name: 'MyTimer',
   components: {
@@ -128,7 +131,7 @@ export default defineComponent({
     handleTimer()
 
     // eslint-disable-next-line no-undef
-    const youtube: Ref<{ player: YT.Player }> = ref(null)
+    const youtube: Ref<{ player: YouTubePlayer }> = ref(null)
     const {
       state,
       applyConfig,
