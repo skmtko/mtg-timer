@@ -20,14 +20,14 @@
         </TimeDisplay>
         <div class="mt-1">
           <MyButton
-            size="lg"
             v-if="!isCounting"
+            size="lg"
             :disabled="!current"
             @click="countStart"
           >
             START
           </MyButton>
-          <MyButton size="lg" v-if="isCounting" @click="countStop">
+          <MyButton v-if="isCounting" size="lg" @click="countStop">
             STOP
           </MyButton>
 
@@ -84,7 +84,7 @@
             rows="12"
             @input="onUpdateNote"
           />
-          <MyButton @click="onClickInitNote">メモのリセット</MyButton>
+          <MyButton @click="onClickInitNote"> メモのリセット </MyButton>
         </div>
       </div>
     </div>
@@ -103,7 +103,6 @@ import useYoutube from '../composables/useYoutube'
 import useNote from '../composables/useNote'
 
 import { YouTubePlayer } from 'youtube-player/dist/types'
-
 
 export default defineComponent({
   name: 'MyTimer',

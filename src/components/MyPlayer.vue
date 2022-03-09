@@ -1,5 +1,8 @@
 <template>
-  <div id="my-youtube-vue-player" ref="player" />
+  <div
+    id="my-youtube-vue-player"
+    ref="player"
+  />
 </template>
 
 <script lang="ts">
