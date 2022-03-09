@@ -1,56 +1,62 @@
 <template>
   <div
-    id="youtube-vue-player-soma"
+    id="my-youtube-vue-player"
     ref="player"
   />
 </template>
 
-<script>
-import YouTubePlayer from 'youtube-player'
+<script lang="ts">
+import { defineComponent } from 'vue'
+import PlayerFactory from 'youtube-player'
+import { YouTubePlayer } from 'youtube-player/dist/types'
 
-export default {
+const convertBooleanToIO = (v: boolean): 0 | 1 => {
+  if(v) return 1
+  return 0
+}
+
+export default defineComponent({
   name: 'MyPlayer',
   props: {
     width: { type: Number, default: 480 },
     height: { type: Number, default: 320 },
     autoplay: {
-      type: Number,
-      default: 1,
-      validator: (v) => Number(v) === 0 || Number(v) === 1,
+      type: Boolean,
+      default: true,
     },
     videoId: { type: String, required: true },
     loop: {
-      type: Number,
-      default: 1,
-      validator: (v) => Number(v) === 0 || Number(v) === 1,
+      type: Boolean,
+      default: true,
     },
   },
-  data() {
+  emits: ['ended', 'paused', 'played'],
+  data(): { player: null | YouTubePlayer } {
     return {
-      ready: 0,
+      player: null
     }
   },
   watch: {
     videoId() {
       this.player.loadVideoById(this.videoId)
-      this.player.playVideo()
-    },
-    list() {
-      this.player.getPlaylist(this.list)
-      this.player.playVideo()
+      if (this.autoplay) {
+        this.player.playVideo()
+      } else {
+        this.player.stopVideo()
+      }
     },
   },
   mounted() {
-    let playerVars = {
-      autoplay: this.autoplay,
-      loop: this.loop,
+    const playerVars = {
+      autoplay: convertBooleanToIO(this.autoplay),
+      loop: convertBooleanToIO(this.loop),
     }
-    this.player = YouTubePlayer('youtube-vue-player-soma', {
+    this.player = PlayerFactory('my-youtube-vue-player', {
       host: 'https://www.youtube.com',
       width: this.width,
       height: this.height,
       videoId: this.videoId,
-      playerVars: playerVars,
+      playerVars,
     })
 
     this.player.on('stateChange', (e) => {
@@ -67,5 +73,5 @@ export default {
     this.player.destroy()
     delete this.player
   },
-}
+})
 </script>

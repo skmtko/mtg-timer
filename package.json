@@ -11,7 +11,6 @@
     "fix": "yarn format && yarn lint"
   },
   "dependencies": {
-    "@types/youtube": "^0.0.46",
     "core-js": "^3.6.5",
     "sass-loader": "^12.3.0",
     "tailwindcss": "2.2.19",
@@ -21,6 +20,7 @@
     "youtube-vue3": "0.1.10"
   },
   "devDependencies": {
+    "@types/youtube": "^0.0.46",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "@vitejs/plugin-vue": "^1.9.3",

@@ -15,8 +15,8 @@ export default function useYoutube(
     localStorageVId.length > 10 ? localStorageVId : defaultId
 
   const state = reactive({
-    temp: { video_id: initialVideoId, loop: 1 },
-    play: { video_id: initialVideoId, loop: 1 },
+    temp: { video_id: initialVideoId },
+    play: { video_id: initialVideoId },
   })
 
   const applyConfig = () => {

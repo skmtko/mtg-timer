@@ -60,7 +60,7 @@
         ref="youtube"
         class="video flex-shrink-0"
         :video-id="state.play.video_id"
-        :loop="state.play.loop"
+        :autoplay="isCounting"
         :width="480"
         :height="320"
       />
