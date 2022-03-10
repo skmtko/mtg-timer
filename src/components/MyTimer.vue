@@ -65,7 +65,6 @@
 
     <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
-        ref="youtube"
         class="video flex-shrink-0"
         :video-id="state.play.video_id"
         :autoplay="isCounting"
@@ -108,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, Ref, watch } from 'vue'
+import { defineComponent, watch } from 'vue'
 import { debounce } from 'throttle-debounce'
 
 import TimeDisplay from './TimeDisplay.vue'
@@ -117,8 +116,6 @@ import MyButton from './MyButton.vue'
 import useTimer from '../composables/useTimer'
 import useYoutube from '../composables/useYoutube'
 import useNote from '../composables/useNote'
-
-import { YouTubePlayer } from 'youtube-player/dist/types'
 
 export default defineComponent({
   name: 'MyTimer',
@@ -144,16 +141,13 @@ export default defineComponent({
     }
 
     handleTimer()
-
-    // eslint-disable-next-line no-undef
-    const youtube: Ref<{ player: YouTubePlayer }> = ref(null)
     const {
       state,
       applyConfig,
       playCurrentVideo,
       stopCurrentVideo,
       pauseCurrentVideo,
-    } = useYoutube(youtube)
+    } = useYoutube()
 
     watch(
       () => isCounting.value,
@@ -194,7 +188,6 @@ export default defineComponent({
 
       // youtube
       state,
-      youtube,
       applyConfig,
       playCurrentVideo,
       stopCurrentVideo,

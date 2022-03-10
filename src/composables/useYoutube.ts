@@ -1,15 +1,20 @@
-import { reactive, Ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { YouTubePlayer } from 'youtube-player/dist/types'
+import { useStore } from '../store'
 
 const StorageKey = {
   video_id: 'video_id',
 } as const
 type StorageKey = typeof StorageKey[keyof typeof StorageKey]
 
-export default function useYoutube(
-  youtube: Ref<{ player: YouTubePlayer }>,
-  defaultId = 'RBjJc8o--tE'
-) {
+const defaultId = 'RBjJc8o--tE'
+
+export default function useYoutube() {
+  const store = useStore()
+  const player = computed(() => store.state.player)
+  const setPlayer = (player: YouTubePlayer | null) =>
+    store.commit('setPlayer', player)
+
   const localStorageVId = localStorage.getItem(StorageKey.video_id) ?? ''
 
   const initialVideoId =
@@ -25,16 +30,17 @@ export default function useYoutube(
     localStorage.setItem(StorageKey.video_id, state.play.video_id)
   }
   const playCurrentVideo = () => {
-    youtube.value.player.playVideo()
+    player.value.playVideo()
   }
   const stopCurrentVideo = () => {
-    youtube.value.player.stopVideo()
+    player.value.stopVideo()
   }
   const pauseCurrentVideo = () => {
-    youtube.value.player.pauseVideo()
+    player.value.pauseVideo()
   }
   return {
     state,
+    setPlayer,
     applyConfig,
     playCurrentVideo,
     stopCurrentVideo,
