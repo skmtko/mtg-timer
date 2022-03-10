@@ -57,11 +57,19 @@
       </div>
     </div>
 
-    <!-- <div class="mt-1">
-      <MyButton @click="addCount(3)"> +1sec </MyButton>
-    </div> -->
+    <div class="mt-1">
+      <MyButton @click="addCount(3)">
+        +1sec
+      </MyButton>
+    </div>
 
     <hr class="my-8">
+
+    <audio
+      ref="chime"
+      src="@/assets/audio/chime.mp3"
+      controls
+    />
 
     <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
@@ -107,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { debounce } from 'throttle-debounce'
 
 import TimeDisplay from './TimeDisplay.vue'
@@ -149,6 +157,13 @@ export default defineComponent({
       pauseCurrentVideo,
     } = useYoutube()
 
+    const chime = ref<HTMLAudioElement | null>()
+    const playChime = () => {
+      if (chime.value) {
+        chime.value.load()
+        chime.value.play()
+      }
+    }
     watch(
       () => isCounting.value,
       (current) => {
@@ -156,6 +171,7 @@ export default defineComponent({
           playCurrentVideo()
         } else {
           stopCurrentVideo()
+          playChime()
         }
       }
     )
@@ -197,6 +213,9 @@ export default defineComponent({
       note,
       onUpdateNote,
       onClickInitNote,
+
+      // chime
+      chime,
     }
   },
 })
