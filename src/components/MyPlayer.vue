@@ -40,7 +40,7 @@ export default defineComponent({
   },
   emits: ['ended', 'paused', 'played'],
   setup(props, context: SetupContext) {
-    const { setPlayer } = useYoutube('')
+    const { setPlayer } = useYoutube()
     const store = useStore()
     const player = computed(() => store.state.player)
 

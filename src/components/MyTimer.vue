@@ -30,7 +30,7 @@
           <MyButton
             v-if="isCounting"
             size="lg"
-            @click="countStop"
+            @click="onClickStop"
           >
             STOP
           </MyButton>
@@ -149,13 +149,8 @@ export default defineComponent({
     }
 
     handleTimer()
-    const {
-      state,
-      applyConfig,
-      playCurrentVideo,
-      stopCurrentVideo,
-      pauseCurrentVideo,
-    } = useYoutube()
+    const { state, applyConfig, playCurrentVideo, stopCurrentVideo } =
+      useYoutube()
 
     const chime = ref<HTMLAudioElement | null>()
     const playChime = () => {
@@ -164,6 +159,12 @@ export default defineComponent({
         chime.value.play()
       }
     }
+    const flagClickStop = ref(false)
+    const onClickStop = () => {
+      flagClickStop.value = true
+      countStop()
+    }
+
     watch(
       () => isCounting.value,
       (current) => {
@@ -171,7 +172,10 @@ export default defineComponent({
           playCurrentVideo()
         } else {
           stopCurrentVideo()
-          playChime()
+          if (!flagClickStop.value) {
+            playChime()
+          }
+          flagClickStop.value = false
         }
       }
     )
@@ -192,6 +196,8 @@ export default defineComponent({
     }
 
     return {
+      onClickStop,
+
       // timer
       current,
       countStart,
@@ -205,9 +211,6 @@ export default defineComponent({
       // youtube
       state,
       applyConfig,
-      playCurrentVideo,
-      stopCurrentVideo,
-      pauseCurrentVideo,
 
       // note
       note,
