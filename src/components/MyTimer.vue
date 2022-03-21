@@ -44,16 +44,6 @@
             RESET
           </MyButton>
         </div>
-
-        <div class="mt-2">
-          <MyButton
-            :disabled="isCounting"
-            title="切り上げ"
-            @click="roundUp"
-          >
-            RoundUp
-          </MyButton>
-        </div>
       </div>
     </div>
 
@@ -141,7 +131,6 @@ export default defineComponent({
       isCounting,
       countReset,
       addCount,
-      roundUp,
     } = useTimer()
 
     const addMinutes = (minutes) => {
@@ -205,7 +194,6 @@ export default defineComponent({
       isCounting,
       countReset,
       addCount,
-      roundUp,
       addMinutes,
 
       // youtube
