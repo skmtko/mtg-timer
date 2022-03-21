@@ -4,16 +4,32 @@
       <div class="sticky top-4">
         <TimeDisplay :time="current">
           <template #prefix>
-            <div class="mr-4">
+            <div class="mr-4 flex flex-col">
+              <span class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs">1min</span>
               <MyButton @click="addMinutes(1)">
-                <span class="text-xl">+ 1</span>
+                <span class="text-md">＋</span>
+              </MyButton>
+              <MyButton
+                class="mt-1"
+                @click="addMinutes(-1)"
+              >
+                <span class="text-md">−</span>
               </MyButton>
             </div>
           </template>
           <template #suffix>
-            <div class="ml-4">
-              <MyButton @click="addMinutes(-1)">
-                <span class="text-xl">- 1</span>
+            <div class="ml-4 flex flex-col">
+              <span class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs">30sec</span>
+              <MyButton
+                @click="addMinutes(0.5)"
+              >
+                <span class="text-md">＋</span>
+              </MyButton>
+              <MyButton
+                class="mt-1"
+                @click="addMinutes(-0.5)"
+              >
+                <span class="text-md">−</span>
               </MyButton>
             </div>
           </template>
