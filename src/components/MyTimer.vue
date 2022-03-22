@@ -5,7 +5,9 @@
         <TimeDisplay :time="current">
           <template #prefix>
             <div class="mr-4 flex flex-col">
-              <span class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs">1min</span>
+              <span
+                class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs"
+              >1min</span>
               <MyButton @click="addMinutes(1)">
                 <span class="text-md">＋</span>
               </MyButton>
@@ -19,10 +21,10 @@
           </template>
           <template #suffix>
             <div class="ml-4 flex flex-col">
-              <span class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs">30sec</span>
-              <MyButton
-                @click="addMinutes(0.5)"
-              >
+              <span
+                class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs"
+              >30sec</span>
+              <MyButton @click="addMinutes(0.5)">
                 <span class="text-md">＋</span>
               </MyButton>
               <MyButton
@@ -63,19 +65,30 @@
       </div>
     </div>
 
-    <div class="mt-1">
+    <!-- <div class="mt-1">
       <MyButton @click="addCount(3)">
-        +1sec
+        +3sec
       </MyButton>
+    </div> -->
+
+    <div class="flex items-center justify-center text-base">
+      <label class="cursor-pointer mr-4">
+        <input
+          type="checkbox"
+          :checked="isChimeActive"
+          @input="toggleChime"
+        >
+        終了チャイム
+      </label>
+      <audio
+        ref="chime"
+        :class="{'opacity-40': !isChimeActive}"
+        src="@/assets/audio/chime.mp3"
+        controls
+      />
     </div>
 
     <hr class="my-8">
-
-    <audio
-      ref="chime"
-      src="@/assets/audio/chime.mp3"
-      controls
-    />
 
     <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
@@ -157,9 +170,13 @@ export default defineComponent({
     const { state, applyConfig, playCurrentVideo, stopCurrentVideo } =
       useYoutube()
 
+    const isChimeActive = ref(true)
     const chime = ref<HTMLAudioElement | null>()
+    const toggleChime = () => {
+      isChimeActive.value = !isChimeActive.value
+    }
     const playChime = () => {
-      if (chime.value) {
+      if (chime.value && isChimeActive.value) {
         chime.value.load()
         chime.value.play()
       }
@@ -202,7 +219,8 @@ export default defineComponent({
 
     return {
       onClickStop,
-
+      isChimeActive,
+      toggleChime,
       // timer
       current,
       countStart,
