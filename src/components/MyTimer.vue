@@ -83,7 +83,7 @@
       <audio
         ref="chime"
         :class="{'opacity-40': !isChimeActive}"
-        src="@/assets/audio/chime.mp3"
+        :src="chimeAsset"
         controls
       />
     </div>
@@ -136,6 +136,8 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import { debounce } from 'throttle-debounce'
+
+import chimeAsset from '@/assets/audio/chime.mp3'
 
 import TimeDisplay from './TimeDisplay.vue'
 import MyPlayer from './MyPlayer.vue'
@@ -218,6 +220,8 @@ export default defineComponent({
     }
 
     return {
+      chimeAsset,
+
       onClickStop,
       isChimeActive,
       toggleChime,
