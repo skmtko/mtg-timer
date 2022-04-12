@@ -1,71 +1,93 @@
 <template>
   <div
-    id="youtube-vue-player-soma"
+    id="my-youtube-vue-player"
     ref="player"
   />
 </template>
 
-<script>
-import YouTubePlayer from 'youtube-player'
+<script lang="ts">
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  SetupContext,
+  watch,
+} from 'vue'
+import PlayerFactory from 'youtube-player'
+import useYoutube from '../composables/useYoutube'
+import { useStore } from '../store/index'
 
-export default {
-  name: 'MyPlayerz',
+const convertBooleanToIO = (v: boolean): 0 | 1 => {
+  if (v) return 1
+  return 0
+}
+
+export default defineComponent({
+  name: 'MyPlayer',
   props: {
     width: { type: Number, default: 480 },
     height: { type: Number, default: 320 },
     autoplay: {
-      type: Number,
-      default: 1,
-      validator: (v) => Number(v) === 0 || Number(v) === 1,
+      type: Boolean,
+      default: true,
     },
-    videoid: { type: String, required: true },
+    videoId: { type: String, required: true },
     loop: {
-      type: Number,
-      default: 1,
-      validator: (v) => Number(v) === 0 || Number(v) === 1,
+      type: Boolean,
+      default: true,
     },
   },
-  data() {
-    return {
-      ready: 0,
-    }
-  },
-  watch: {
-    videoid() {
-      this.player.loadVideoById(this.videoid)
-      this.player.playVideo()
-    },
-    list() {
-      this.player.getPlaylist(this.list)
-      this.player.playVideo()
-    },
-  },
-  mounted() {
-    let playerVars = {
-      autoplay: this.autoplay,
-      loop: this.loop,
-    }
-    this.player = YouTubePlayer('youtube-vue-player-soma', {
-      host: 'https://www.youtube.com',
-      width: this.width,
-      height: this.height,
-      videoId: this.videoid,
-      playerVars: playerVars,
+  emits: ['ended', 'paused', 'played'],
+  setup(props, context: SetupContext) {
+    const { setPlayer } = useYoutube()
+    const store = useStore()
+    const player = computed(() => store.state.player)
+
+    onMounted(() => {
+      const playerVars = {
+        autoplay: convertBooleanToIO(props.autoplay),
+        loop: convertBooleanToIO(props.loop),
+      }
+      setPlayer(
+        PlayerFactory('my-youtube-vue-player', {
+          host: 'https://www.youtube.com',
+          width: props.width,
+          height: props.height,
+          videoId: props.videoId,
+          playerVars,
+        })
+      )
+
+      player.value.on('stateChange', (e) => {
+        if (e.data === window.YT.PlayerState.ENDED) {
+          context.emit('ended')
+        } else if (e.data === window.YT.PlayerState.PAUSED) {
+          context.emit('paused')
+        } else if (e.data === window.YT.PlayerState.PLAYING) {
+          context.emit('played')
+        }
+      })
+    })
+    onUnmounted(() => {
+      player.value.destroy()
+      setPlayer(null)
     })
 
-    this.player.on('stateChange', (e) => {
-      if (e.data === window.YT.PlayerState.ENDED) {
-        this.$emit('ended')
-      } else if (e.data === window.YT.PlayerState.PAUSED) {
-        this.$emit('paused')
-      } else if (e.data === window.YT.PlayerState.PLAYING) {
-        this.$emit('played')
+    watch(
+      () => props.videoId,
+      () => {
+        player.value.loadVideoById(props.videoId)
+        if (props.autoplay) {
+          player.value.playVideo()
+        } else {
+          player.value.stopVideo()
+        }
       }
-    })
+    )
+    return {
+      player,
+    }
   },
-  unmounted() {
-    this.player.destroy()
-    delete this.player
-  },
-}
+})
 </script>

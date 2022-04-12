@@ -4,30 +4,52 @@
       <div class="sticky top-4">
         <TimeDisplay :time="current">
           <template #prefix>
-            <div class="mr-4">
+            <div class="mr-4 flex flex-col">
+              <span
+                class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs"
+              >1min</span>
               <MyButton @click="addMinutes(1)">
-                <span class="text-xl">+ 1</span>
+                <span class="text-md">＋</span>
+              </MyButton>
+              <MyButton
+                class="mt-1"
+                @click="addMinutes(-1)"
+              >
+                <span class="text-md">−</span>
               </MyButton>
             </div>
           </template>
           <template #suffix>
-            <div class="ml-4">
-              <MyButton @click="addMinutes(-1)">
-                <span class="text-xl">- 1</span>
+            <div class="ml-4 flex flex-col">
+              <span
+                class="bg-gray-700 block rounded text-white px-4 mb-1 text-xs"
+              >30sec</span>
+              <MyButton @click="addMinutes(0.5)">
+                <span class="text-md">＋</span>
+              </MyButton>
+              <MyButton
+                class="mt-1"
+                @click="addMinutes(-0.5)"
+              >
+                <span class="text-md">−</span>
               </MyButton>
             </div>
           </template>
         </TimeDisplay>
         <div class="mt-1">
           <MyButton
-            size="lg"
             v-if="!isCounting"
+            size="lg"
             :disabled="!current"
             @click="countStart"
           >
             START
           </MyButton>
-          <MyButton size="lg" v-if="isCounting" @click="countStop">
+          <MyButton
+            v-if="isCounting"
+            size="lg"
+            @click="onClickStop"
+          >
             STOP
           </MyButton>
 
@@ -40,42 +62,60 @@
             RESET
           </MyButton>
         </div>
-
-        <div class="mt-2">
-          <MyButton :disabled="isCounting" title="切り上げ" @click="roundUp">
-            RoundUp
-          </MyButton>
-        </div>
       </div>
     </div>
 
     <!-- <div class="mt-1">
-      <MyButton @click="addCount(3)"> +1sec </MyButton>
+      <MyButton @click="addCount(3)">
+        +3sec
+      </MyButton>
     </div> -->
 
-    <hr class="my-8" />
+    <div class="flex items-center justify-center text-base">
+      <label class="cursor-pointer mr-4">
+        <input
+          type="checkbox"
+          :checked="isChimeActive"
+          @input="toggleChime"
+        >
+        終了チャイム
+      </label>
+      <audio
+        ref="chime"
+        :class="{'opacity-40': !isChimeActive}"
+        :src="chimeAsset"
+        controls
+      />
+    </div>
+
+    <hr class="my-8">
 
     <div class="p-4 pb-24 flex items-center justify-center">
       <MyPlayer
-        ref="youtube"
         class="video flex-shrink-0"
-        :videoid="state.play.video_id"
-        :loop="state.play.loop"
+        :video-id="state.play.video_id"
+        :autoplay="isCounting"
         :width="480"
         :height="320"
       />
       <div class="ml-8 text-left editor">
         <div>
           <span class="mr-2">video_id :</span>
-          <input v-model="state.temp.video_id" class="idInput" type="text" />
+          <input
+            v-model="state.temp.video_id"
+            class="idInput"
+            type="text"
+          >
         </div>
         <div class="mt-2">
-          <MyButton @click="applyConfig"> Apply video_id </MyButton>
+          <MyButton @click="applyConfig">
+            Apply video_id
+          </MyButton>
         </div>
 
         <div class="mt-8">
           <p class="text-xs mb-1">
-            使えそうなyoutubeIdのメモです<br />localStorageに自動保存されます
+            使えそうなyoutubeIdのメモです<br>localStorageに自動保存されます
           </p>
           <textarea
             v-model="note"
@@ -84,7 +124,9 @@
             rows="12"
             @input="onUpdateNote"
           />
-          <MyButton @click="onClickInitNote">メモのリセット</MyButton>
+          <MyButton @click="onClickInitNote">
+            メモのリセット
+          </MyButton>
         </div>
       </div>
     </div>
@@ -92,8 +134,10 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, Ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { debounce } from 'throttle-debounce'
+
+import chimeAsset from '@/assets/audio/chime.mp3'
 
 import TimeDisplay from './TimeDisplay.vue'
 import MyPlayer from './MyPlayer.vue'
@@ -118,7 +162,6 @@ export default defineComponent({
       isCounting,
       countReset,
       addCount,
-      roundUp,
     } = useTimer()
 
     const addMinutes = (minutes) => {
@@ -126,16 +169,25 @@ export default defineComponent({
     }
 
     handleTimer()
+    const { state, applyConfig, playCurrentVideo, stopCurrentVideo } =
+      useYoutube()
 
-    // eslint-disable-next-line no-undef
-    const youtube: Ref<{ player: YT.Player }> = ref(null)
-    const {
-      state,
-      applyConfig,
-      playCurrentVideo,
-      stopCurrentVideo,
-      pauseCurrentVideo,
-    } = useYoutube(youtube)
+    const isChimeActive = ref(true)
+    const chime = ref<HTMLAudioElement | null>()
+    const toggleChime = () => {
+      isChimeActive.value = !isChimeActive.value
+    }
+    const playChime = () => {
+      if (chime.value && isChimeActive.value) {
+        chime.value.load()
+        chime.value.play()
+      }
+    }
+    const flagClickStop = ref(false)
+    const onClickStop = () => {
+      flagClickStop.value = true
+      countStop()
+    }
 
     watch(
       () => isCounting.value,
@@ -144,6 +196,10 @@ export default defineComponent({
           playCurrentVideo()
         } else {
           stopCurrentVideo()
+          if (!flagClickStop.value) {
+            playChime()
+          }
+          flagClickStop.value = false
         }
       }
     )
@@ -164,6 +220,11 @@ export default defineComponent({
     }
 
     return {
+      chimeAsset,
+
+      onClickStop,
+      isChimeActive,
+      toggleChime,
       // timer
       current,
       countStart,
@@ -171,21 +232,19 @@ export default defineComponent({
       isCounting,
       countReset,
       addCount,
-      roundUp,
       addMinutes,
 
       // youtube
       state,
-      youtube,
       applyConfig,
-      playCurrentVideo,
-      stopCurrentVideo,
-      pauseCurrentVideo,
 
       // note
       note,
       onUpdateNote,
       onClickInitNote,
+
+      // chime
+      chime,
     }
   },
 })
